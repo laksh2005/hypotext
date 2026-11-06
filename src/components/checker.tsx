@@ -110,7 +110,7 @@ function Result({ r }: { r: Analysis }) {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div className="min-w-0">
           <div className="mb-2 text-sm font-medium"><span className="text-faint"># </span>what AI sees today</div>
-          <pre className="code max-h-80 text-faint">{r.rawPreview}{"\n"}… {num(Math.max(0, r.htmlBytes - 1200))} more bytes</pre>
+          <pre className="code max-h-80 overflow-hidden whitespace-pre-wrap break-all text-faint">{r.rawPreview}{"\n"}… {num(Math.max(0, r.htmlBytes - 1200))} more bytes</pre>
         </div>
         <div className="min-w-0">
           <div className="mb-2 text-sm font-medium"><span className="text-faint"># </span>what AI sees with hypotext</div>

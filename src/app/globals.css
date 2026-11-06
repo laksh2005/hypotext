@@ -46,6 +46,7 @@ html { background: var(--bg); color: var(--fg); color-scheme: light; }
 html[data-theme="dark"] { color-scheme: dark; }
 body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 
+@layer components {
 a.u, .prose-ht a { text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 3px; }
 a.u:hover, .prose-ht a:hover { text-decoration-color: var(--fg); }
 
@@ -76,3 +77,4 @@ a.u:hover, .prose-ht a:hover { text-decoration-color: var(--fg); }
   border-radius: .5rem; padding: .875rem 1rem; overflow-x: auto; white-space: pre;
 }
 .tag { font-size: .75rem; padding: .125rem .5rem; border-radius: .375rem; }
+}
