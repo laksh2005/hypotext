@@ -3,16 +3,27 @@ import { Suspense } from "react";
 import { Checker } from "@/components/checker";
 import { SITE_URL } from "@/lib/site-url";
 
+const EXAMPLE_JSON = `{
+  "@type": "Product",
+  "name": "Aura Headphones",
+  "offers": {
+    "price": "348.00",
+    "priceCurrency": "USD",
+    "availability": "InStock"
+  },
+  "aggregateRating": {
+    "ratingValue": 4.7,
+    "reviewCount": 12483
+  }
+}`;
+
 export default function Home() {
   return (
-    <div className="prose-ht">
-      <p>
-        Half the visitors to your website aren't people anymore. ChatGPT, Claude and Perplexity read your pages to answer questions about you. On a modern JavaScript site, they download megabytes of code to find one price, and often get it wrong.
+    <div>
+      <h1 className="text-2xl font-medium leading-snug">Make your website readable by AI.</h1>
+      <p className="mt-3 text-muted">
+        ChatGPT, Claude and Perplexity read your pages to answer questions about you. HypoText gives them a clean, accurate version of each page, while people keep seeing your normal site.
       </p>
-      <p className="mt-4">
-        HypoText sits in front of your site. People get the page they always got. AI gets a small, clean file with just the facts: name, price, stock, specs.
-      </p>
-      <p className="mt-4 text-muted">Same link. No rebuild. Five lines of code.</p>
 
       <div className="mt-6">
         <Suspense>
@@ -20,43 +31,48 @@ export default function Home() {
         </Suspense>
       </div>
 
+      <div className="h">same page, two readers</div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <div className="mb-2 flex justify-between text-sm"><span>What people see</span><span className="text-faint">496 KB</span></div>
+          <div className="rounded-lg border border-line p-4">
+            <div className="mb-3 aspect-[2/1] rounded-md bg-[#d9d4cc]" aria-hidden="true" />
+            <div className="text-xs text-muted">Northwind Audio</div>
+            <div className="font-medium">Aura Headphones</div>
+            <div className="mt-1 text-sm">$348.00 · <span className="text-ok">In stock</span></div>
+            <div className="mt-3 rounded-md bg-fg py-1.5 text-center text-sm text-bg">Add to cart</div>
+          </div>
+        </div>
+        <div>
+          <div className="mb-2 flex justify-between text-sm"><span>What AI gets</span><span className="text-faint">416 bytes</span></div>
+          <pre className="code">{EXAMPLE_JSON}</pre>
+        </div>
+      </div>
+      <p className="mt-3 text-sm text-muted">
+        Same link, about 1,000× less data, and no guessing. <Link href="/demo/p/aura-headphones" className="u text-fg">Open this product</Link> and press "View as GPTBot" to see it live.
+      </p>
+
       <div className="h">how it works</div>
-      <div className="text-[15px]">
-        <Step n="01">Someone, or something, opens a page on your site.</Step>
-        <Step n="02">HypoText checks who's asking: a person, or an AI agent like GPTBot or ClaudeBot.</Step>
-        <Step n="03">People get your normal site. Agents get the same page as clean JSON.</Step>
-        <Step n="04">Before serving, it checks every fact is visible to people too, so AI never sees something your customers can't.</Step>
+      <div>
+        <Step n="1">Add a few lines of code to your site. No rebuild.</Step>
+        <Step n="2">When an AI agent visits, HypoText reads the page and pulls out the facts.</Step>
+        <Step n="3">It checks people can see those same facts, then sends the agent clean JSON.</Step>
       </div>
 
-      <div className="h">why it matters</div>
-      <div className="text-[15px]">
-        <Row title="Get quoted correctly">AI assistants stop guessing your prices and stock from messy HTML.</Row>
-        <Row title="Stay visible">No need to block AI crawlers to save money. Let them in, cheaply.</Row>
-        <Row title="Cut bot bandwidth">Agents pull a few hundred bytes instead of megabytes of JavaScript.</Row>
-        <Row title="Know who's reading">See which AI agents visit, what they read, and how much you saved.</Row>
+      <div className="mt-8 flex flex-wrap gap-2">
+        <Link href="/dashboard" className="btn inline-flex items-center">Add your site</Link>
+        <Link href="/demo" className="btn-ghost inline-flex h-10 items-center">Try the demo store</Link>
       </div>
-
-      <div className="h">see it live</div>
-      <p>
-        Our <Link href="/demo">demo store</Link> runs HypoText. Open it normally, then ask for the same page as a bot:
-      </p>
-      <pre className="code mt-3">curl -A &quot;GPTBot&quot; {SITE_URL}/demo/p/aura-headphones</pre>
-      <p className="mt-3 text-muted">
-        Every visit shows up on the demo's <Link href="/dashboard?site=demo">public dashboard</Link>.
-      </p>
 
       <div className="h">questions</div>
-      <div className="text-[15px]">
-        <Faq q="Do I need to change my website?">No. You add one small file (middleware) and a key. HypoText reads your rendered pages itself.</Faq>
-        <Faq q="Is this cloaking? Will Google mind?">Cloaking means showing bots something different from people. HypoText only serves facts that are visible on the page, and holds back any page where they don't match.</Faq>
-        <Faq q="What if HypoText is down?">Your site keeps working. If HypoText can't answer, bots simply get your normal page.</Faq>
-        <Faq q="Which AI agents are recognised?">GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-User, PerplexityBot, Google-Extended, Applebot-Extended, Meta, Amazon, Common Crawl and more.</Faq>
-        <Faq q="What does it cost?">Free to try. <Link href="/pricing">Plans</Link> start at $49 a month.</Faq>
+      <div>
+        <Faq q="Do I need to change my website?">No. You add one small file and a key. HypoText reads your pages the way they already are.</Faq>
+        <Faq q="Is this cloaking? Will Google mind?">No. HypoText only sends facts that are visible on the page. If they don't match, the agent gets your normal page.</Faq>
+        <Faq q="What if HypoText is down?">Your site keeps working. Agents get your normal page instead.</Faq>
+        <Faq q="Can I try it from a terminal?">
+          Yes: <code className="font-mono text-xs">curl -A &quot;GPTBot&quot; {SITE_URL}/demo/p/aura-headphones</code>
+        </Faq>
       </div>
-
-      <p className="mt-10">
-        <Link href="/dashboard">Add your site</Link> or read <Link href="/docs">how it works</Link>.
-      </p>
     </div>
   );
 }
@@ -64,17 +80,8 @@ export default function Home() {
 function Step({ n, children }: { n: string; children: React.ReactNode }) {
   return (
     <div className="row justify-start">
-      <span className="w-6 shrink-0 text-faint">{n}</span>
+      <span className="w-5 shrink-0 text-faint">{n}</span>
       <span>{children}</span>
-    </div>
-  );
-}
-
-function Row({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="border-b border-line py-2 last:border-0">
-      <div className="font-medium">{title}</div>
-      <div className="text-muted">{children}</div>
     </div>
   );
 }
@@ -84,7 +91,7 @@ function Faq({ q, children }: { q: string; children: React.ReactNode }) {
     <details className="group border-b border-line py-2 last:border-0">
       <summary className="flex cursor-pointer list-none justify-between gap-4">
         {q}
-        <span className="text-faint group-open:rotate-45 transition-transform">+</span>
+        <span className="text-faint transition-transform group-open:rotate-45">+</span>
       </summary>
       <p className="mt-1 text-muted">{children}</p>
     </details>

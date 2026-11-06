@@ -59,7 +59,7 @@ Facts are extracted with rules only, in priority order: existing **JSON-LD**, th
 
 ## How to use it
 
-1. Open **Dashboard** and add your domain. You get a site key. No account: the key is stored in a secure cookie on your browser.
+1. Open **Dashboard** and add your domain. You get a site key. There's no account: the key is remembered in a secure cookie on your browser.
 2. Add the key to your environment as `HYPOTEXT_KEY`, then create `middleware.ts`:
    ```ts
    import { hypotext } from "@hypotext/next";
@@ -68,7 +68,7 @@ Facts are extracted with rules only, in priority order: existing **JSON-LD**, th
 3. Deploy, then press **Check install**, or run `curl -A GPTBot https://yoursite.com`.
 4. Add `?view=ai` to any page to preview the AI version in your browser.
 
-Not on Next.js? Call `GET /api/v1/serve?key=…&url=…&bot=…` from any edge or proxy (a Cloudflare Worker example is in `/docs`).
+Not on Next.js? Any server or edge function can call `GET /api/v1/serve?key=…&url=…&bot=…` when an AI agent visits.
 
 ## Best features
 
@@ -83,6 +83,7 @@ Not on Next.js? Call `GET /api/v1/serve?key=…&url=…&bot=…` from any edge o
 
 ## Limitations
 
+- The `@hypotext/next` npm package isn't published yet. The same code runs this site's demo store from `src/lib/hypotext.ts`.
 - Bots are recognised by user agent only. A bot that pretends to be a browser isn't caught (no TLS fingerprinting or IP verification yet).
 - Extraction is rules-based. Pages with no structured data and unusual layouts give thinner JSON (title, headings, summary). An LLM fallback could fill those gaps later.
 - The content match covers name, price and stock, not every field.
@@ -101,4 +102,14 @@ Storage is in-memory by default. Set `DATABASE_URL` (Postgres, for example Neon)
 
 ## Stack
 
-Next.js 15 (App Router, middleware), TypeScript, Tailwind CSS 4, cheerio, Neon Postgres. The middleware package lives in [`packages/next`](packages/next).
+Next.js 15 (App Router, middleware), TypeScript, Tailwind CSS 4, cheerio, Neon Postgres.
+
+| File | What it does |
+| --- | --- |
+| `src/lib/hypotext.ts` | The middleware: spots AI agents and answers them with JSON |
+| `src/lib/bots.ts` | Known AI agents, matched by user agent |
+| `src/lib/extract.ts` | Pulls facts out of a page, rule by rule |
+| `src/lib/parity.ts` | Checks those facts are visible to people |
+| `src/lib/render.ts` | Fetches a page and measures it |
+| `src/lib/db.ts` | Sites, pages and visits (Postgres, or memory locally) |
+| `src/app/api/v1/serve` | The endpoint the middleware calls |
