@@ -22,7 +22,10 @@ export function checkParity(data: Extracted, visibleText: string): ParityResult 
   const checks: ParityCheck[] = [];
 
   if (data.name) {
-    checks.push({ field: "name", value: data.name, ok: text.includes(norm(data.name).replace(/…$/, "")) });
+    // Titles often carry a site suffix ("Product · Store"); the main part must be visible.
+    const parts = data.name.replace(/…$/, "").split(/\s+[·|–—\-:]\s+/).map(norm).filter((p) => p.length > 2);
+    const ok = text.includes(norm(data.name).replace(/…$/, "")) || (parts.length > 0 && text.includes(parts[0]));
+    checks.push({ field: "name", value: data.name, ok });
   }
   if (data.offers?.price) {
     const ok = priceVariants(data.offers.price).some((v) => text.includes(v));
