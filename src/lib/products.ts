@@ -60,25 +60,3 @@ export const PRODUCTS: Product[] = [
 ];
 
 export const productBySlug = (slug: string) => PRODUCTS.find((p) => p.slug === slug);
-
-export const availability = (p: Product) => (p.stock > 0 ? "InStock" : "OutOfStock");
-
-// The JSON a bot gets for a product page: built from the same data the page renders.
-export function productJson(p: Product, url: string) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    url,
-    name: p.name,
-    brand: p.brand,
-    description: p.description,
-    offers: {
-      price: p.price.toFixed(2),
-      priceCurrency: p.currency,
-      availability: availability(p),
-      inventoryLevel: p.stock,
-    },
-    features: p.features,
-    aggregateRating: { ratingValue: p.rating, reviewCount: p.reviews },
-  };
-}

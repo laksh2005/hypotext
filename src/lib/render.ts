@@ -1,9 +1,6 @@
 import { extract, estimateTokens, type Extracted, type FieldSource } from "./extract";
 import { checkParity, type ParityResult } from "./parity";
-
-// Header sent when HypoText fetches a page itself, so the middleware on that
-// site lets the request through to the normal (human) page instead of looping.
-export const BYPASS_HEADER = "x-hypotext-bypass";
+import { BYPASS_HEADER } from "./hypotext";
 
 export type Analysis = {
   url: string;
@@ -26,7 +23,7 @@ export type Analysis = {
 const UA = "Mozilla/5.0 (compatible; HypoText/1.0; +https://hypotext.dev)";
 const MAX_HTML = 5_000_000;
 
-export function normalizeUrl(input: string): URL {
+function normalizeUrl(input: string): URL {
   let s = input.trim();
   if (!/^https?:\/\//i.test(s)) s = "https://" + s;
   const u = new URL(s);
