@@ -89,7 +89,7 @@ Not on Next.js? Any server or edge function can call `GET /api/v1/serve?key=…&
 - The content match covers name, price and stock, not every field.
 - Pages that render all their content in the browser (no server HTML) can't be read yet. There's no headless browser.
 - The first bot request to a page waits for one live fetch (usually under 1 second). Later requests are cached for 60 seconds.
-- Plans are shown but billing isn't wired up. Sites are tied to a browser cookie, not a user account.
+- Sites are tied to a browser cookie, not a user account.
 
 ## Run locally
 
