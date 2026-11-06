@@ -11,6 +11,8 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Copy-heavy pages use plain apostrophes and quotes in text.
+  { rules: { "react/no-unescaped-entities": "off" } },
   {
     ignores: [
       "node_modules/**",

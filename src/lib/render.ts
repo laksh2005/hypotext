@@ -38,7 +38,7 @@ export function normalizeUrl(input: string): URL {
     /^(127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(host) || /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
     host === "[::1]"
   ) {
-    if (process.env.NODE_ENV === "production") throw new Error("That address isn't publicly reachable.");
+    if (process.env.NODE_ENV === "production" && process.env.ALLOW_PRIVATE_URLS !== "1") throw new Error("That address isn't publicly reachable.");
   }
   return u;
 }
