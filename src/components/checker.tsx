@@ -6,7 +6,11 @@ import Link from "next/link";
 import type { Analysis } from "@/lib/render";
 import { bytes, num, ratio } from "@/lib/format";
 
-const EXAMPLES = ["/demo/p/aura-headphones", "vercel.com", "allbirds.com"];
+const EXAMPLES = ["/demo/p/aura-headphones", "vercel.com", "allbirds.com/products/mens-tree-runners"];
+const LABELS: Record<string, string> = {
+  "/demo/p/aura-headphones": "our demo store",
+  "allbirds.com/products/mens-tree-runners": "an Allbirds product",
+};
 
 export function Checker({ compact = false }: { compact?: boolean }) {
   const params = useSearchParams();
@@ -64,7 +68,7 @@ export function Checker({ compact = false }: { compact?: boolean }) {
           Try{" "}
           {EXAMPLES.map((ex, i) => (
             <span key={ex}>
-              <button type="button" className="underline decoration-faint underline-offset-2 hover:text-fg" onClick={() => { setUrl(ex); if (compact) router.push(`/check?url=${encodeURIComponent(ex)}`); else { router.replace(`/check?url=${encodeURIComponent(ex)}`, { scroll: false }); run(ex); } }}>{ex.replace(/^\/demo\/p\//, "our demo product")}</button>
+              <button type="button" className="underline decoration-faint underline-offset-2 hover:text-fg" onClick={() => { setUrl(ex); if (compact) router.push(`/check?url=${encodeURIComponent(ex)}`); else { router.replace(`/check?url=${encodeURIComponent(ex)}`, { scroll: false }); run(ex); } }}>{LABELS[ex] ?? ex}</button>
               {i < EXAMPLES.length - 1 ? ", " : "."}
             </span>
           ))}

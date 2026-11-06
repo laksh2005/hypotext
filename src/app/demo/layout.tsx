@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AiToggle } from "./ai-toggle";
+import { SITE_URL } from "@/lib/site-url";
 
 export const metadata = { title: "Demo store" };
 
@@ -14,7 +15,7 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
           <AiToggle />
           <Link href="/demo/llms.txt" className="btn-ghost inline-flex items-center" prefetch={false}>/llms.txt</Link>
         </div>
-        <pre className="code mt-3">curl -A "GPTBot" {"{this site}"}/demo/p/aura-headphones</pre>
+        <pre className="code mt-3">curl -A "GPTBot" {SITE_URL}/demo/p/aura-headphones</pre>
       </div>
       <div className="rounded-lg border border-line">
         <div className="flex items-center justify-between border-b border-line px-4 py-3 text-sm">

@@ -25,12 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen text-[15px] leading-7">
         <div className="mx-auto max-w-[640px] px-5 pb-24 pt-12 sm:pt-16">
-          <header className="mb-10 flex items-start justify-between gap-4">
+          <header className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
             <Link href="/" className="block">
               <div className="font-medium">hypotext</div>
               <div className="text-sm text-muted">your site, readable by AI</div>
             </Link>
-            <nav className="flex items-center gap-4 text-sm text-muted">
+            <nav className="flex items-center gap-3 text-sm text-muted sm:gap-4">
               <Link href="/check" className="hover:text-fg">check</Link>
               <Link href="/demo" className="hover:text-fg">demo</Link>
               <Link href="/pricing" className="hover:text-fg">pricing</Link>
