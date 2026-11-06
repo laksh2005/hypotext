@@ -3,8 +3,8 @@
 **Your site, readable by AI.** People get your normal pages. AI agents like ChatGPT, Claude and Perplexity get a small, accurate JSON version of the same page, from the same URL.
 
 ```bash
-curl https://hypotext.vercel.app/demo/p/aura-headphones                # people: ~500 KB of HTML, JS and CSS
-curl -A "GPTBot" https://hypotext.vercel.app/demo/p/aura-headphones    # AI: ~400 bytes of JSON
+curl https://hypotext-sigma.vercel.app/demo/p/aura-headphones                # people: ~500 KB of HTML, JS and CSS
+curl -A "GPTBot" https://hypotext-sigma.vercel.app/demo/p/aura-headphones    # AI: ~400 bytes of JSON
 ```
 
 ```json
