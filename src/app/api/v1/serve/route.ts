@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { analyze } from "@/lib/render";
 import { getPage, logHit, savePage } from "@/lib/db";
 import { siteForKey, urlBelongsToSite } from "@/lib/sites";
@@ -25,21 +25,23 @@ export async function GET(req: Request) {
   let page = await getPage(site.id, path);
   if (!page || Date.now() - page.checkedAt > FRESH_FOR_MS) {
     try {
-      const a = await analyze(url);
-      await savePage({
-        siteId: site.id, path, json: JSON.stringify(a.data), htmlBytes: a.totalBytes,
+      // Measuring linked JS/CSS is slow, so only do it the first time a page is read.
+      const a = await analyze(url, { measureAssets: !page });
+      const fresh = {
+        siteId: site.id, path, json: JSON.stringify(a.data),
+        htmlBytes: page ? Math.max(page.htmlBytes, a.totalBytes) : a.totalBytes,
         parityOk: a.parity.ok, parity: JSON.stringify(a.parity),
-      });
-      page = await getPage(site.id, path);
+      };
+      await savePage(fresh);
+      page = { ...fresh, checkedAt: Date.now() };
     } catch {
       return NextResponse.json({ error: "Couldn't read the page." }, { status: 502 });
     }
   }
-  if (!page) return NextResponse.json({ error: "Couldn't read the page." }, { status: 502 });
 
-  if (bot !== "preview") {
-    await logHit({ siteId: site.id, bot, path, htmlBytes: page.htmlBytes, jsonBytes: Buffer.byteLength(page.json) });
-  }
+  // Log the visit after the response is sent, so the agent never waits on it.
+  const hit = { siteId: site.id, bot, path, htmlBytes: page.htmlBytes, jsonBytes: Buffer.byteLength(page.json) };
+  if (bot !== "preview") after(() => logHit(hit));
 
   // Never serve facts people can't see. The agent gets the normal page instead.
   if (!page.parityOk) return NextResponse.json({ error: "Facts don't match the visible page." }, { status: 409 });

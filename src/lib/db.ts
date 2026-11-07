@@ -20,11 +20,11 @@ const mem: Memory = (g.htMemory ??= { sites: [], pages: [], hits: [] });
 let ready: Promise<void> | null = null;
 function setup() {
   if (!sql) return Promise.resolve();
-  ready ??= (async () => {
-    await sql`create table if not exists sites (id text primary key, key text unique not null, domain text not null)`;
-    await sql`create table if not exists pages (site_id text, path text, json text, html_bytes int, parity_ok boolean, parity text, checked_at bigint, primary key (site_id, path))`;
-    await sql`create table if not exists hits (site_id text, bot text, path text, html_bytes int, json_bytes int, at bigint)`;
-  })();
+  ready ??= Promise.all([
+    sql`create table if not exists sites (id text primary key, key text unique not null, domain text not null)`,
+    sql`create table if not exists pages (site_id text, path text, json text, html_bytes int, parity_ok boolean, parity text, checked_at bigint, primary key (site_id, path))`,
+    sql`create table if not exists hits (site_id text, bot text, path text, html_bytes int, json_bytes int, at bigint)`,
+  ]).then(() => sql`create index if not exists hits_site_at on hits (site_id, at)`).then(() => {});
   return ready;
 }
 

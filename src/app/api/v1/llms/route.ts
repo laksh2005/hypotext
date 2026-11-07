@@ -24,5 +24,5 @@ export async function GET(req: Request) {
   }
   lines.push("", "Request any page with an AI user agent to get it as JSON.");
 
-  return new Response(lines.join("\n") + "\n", { headers: { "content-type": "text/plain; charset=utf-8" } });
+  return new Response(lines.join("\n") + "\n", { headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "public, s-maxage=60, stale-while-revalidate=300" } });
 }
