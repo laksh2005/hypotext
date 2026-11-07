@@ -2,7 +2,10 @@ import Link from "next/link";
 import { AiToggle } from "./ai-toggle";
 import { SITE_URL } from "@/lib/site-url";
 
-export const metadata = { title: "Demo store" };
+export const metadata = {
+  title: "Demo store",
+  description: "Northwind Audio: headphones, speakers and earbuds. A sample store running HypoText.",
+};
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
   return (

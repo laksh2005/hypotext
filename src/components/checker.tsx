@@ -103,7 +103,7 @@ function Result({ r }: { r: Analysis }) {
         <Stat value={bytes(r.totalBytes)} label={`what a bot downloads (${r.scriptCount} scripts)`} />
         <Stat value={bytes(r.jsonBytes)} label="with hypotext" />
         <Stat value={`${Math.round(saved * 100)}%`} label={`fewer tokens (${num(r.htmlTokens)} → ${num(r.jsonTokens)})`} />
-        <Stat value={r.parity.checks.length ? (r.parity.ok ? "match" : "mismatch") : "–"} label="facts vs the page" tone={r.parity.checks.length ? (r.parity.ok ? "ok" : "bad") : undefined} />
+        <Stat value={r.parity.empty ? "can't check" : r.parity.checks.length ? (r.parity.ok ? "match" : "mismatch") : "–"} label="facts vs the page" tone={r.parity.checks.length ? (r.parity.ok ? "ok" : "bad") : undefined} />
       </div>
       <p className="mt-4 text-sm text-muted">That's {ratio(r.totalBytes, r.jsonBytes)} less data for the same facts.</p>
 
@@ -118,7 +118,13 @@ function Result({ r }: { r: Analysis }) {
         </div>
       </div>
 
-      {thin && (
+      {r.parity.empty && (
+        <p className="mt-4 text-sm text-muted">
+          This page is built in the browser with JavaScript, so it sends bots almost no text. HypoText can only read its title and meta tags, and won't serve facts it can't check against the page.
+        </p>
+      )}
+
+      {thin && !r.parity.empty && (
         <p className="mt-4 text-sm text-muted">
           This page doesn't expose much structured data, so the summary is based on its headings and text. Adding schema.org markup gives bots richer facts.
         </p>

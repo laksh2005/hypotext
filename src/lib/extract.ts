@@ -19,6 +19,10 @@ export type Extracted = {
   image?: string;
   offers?: { price?: string; priceCurrency?: string; availability?: string };
   aggregateRating?: { ratingValue?: number; reviewCount?: number };
+  author?: string;
+  datePublished?: string;
+  inLanguage?: string;
+  highlights?: string[];
   headings?: string[];
   summary?: string;
 };
@@ -29,6 +33,7 @@ export type ExtractResult = {
   data: Extracted;
   sources: FieldSource; // which rule produced each field
   visibleText: string; // what a person can read on the page, used for parity
+  title: string; // the browser tab title, also visible to people
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = { $: "USD", "€": "EUR", "£": "GBP", "₹": "INR", "¥": "JPY" };
@@ -78,7 +83,8 @@ function jsonLdNodes($: cheerio.CheerioAPI): Record<string, unknown>[] {
 const typeOf = (n: Record<string, unknown>) =>
   ([] as unknown[]).concat(n["@type"] ?? []).map(String);
 
-const PREFERRED_TYPES = ["Product", "SoftwareApplication", "Article", "NewsArticle", "BlogPosting", "Organization", "WebPage"];
+// Page-level types only. Organization and WebSite describe the whole site, not this page.
+const PREFERRED_TYPES = ["Product", "ProductGroup", "SoftwareApplication", "Movie", "Book", "Recipe", "Event", "Article", "NewsArticle", "BlogPosting", "FAQPage", "WebPage"];
 
 export function extract(html: string, url: string): ExtractResult {
   const $ = cheerio.load(html);
@@ -93,8 +99,7 @@ export function extract(html: string, url: string): ExtractResult {
 
   // 1. JSON-LD
   const nodes = jsonLdNodes($);
-  const main =
-    PREFERRED_TYPES.map((t) => nodes.find((n) => typeOf(n).includes(t))).find(Boolean) ?? nodes[0];
+  const main = PREFERRED_TYPES.map((t) => nodes.find((n) => typeOf(n).includes(t))).find(Boolean);
   if (main) {
     const t = typeOf(main)[0];
     if (t) { data["@type"] = t; sources["@type"] = "json-ld"; }
@@ -115,6 +120,9 @@ export function extract(html: string, url: string): ExtractResult {
       };
       if (o.price || o.availability) set("offers", o, "json-ld");
     }
+    const author = ([] as unknown[]).concat(main.author ?? [])[0] as { name?: string } | string | undefined;
+    set("author", clean(typeof author === "string" ? author : author?.name), "json-ld");
+    set("datePublished", main.datePublished ? String(main.datePublished) : undefined, "json-ld");
     const r = main.aggregateRating as Record<string, unknown> | undefined;
     if (r?.ratingValue) {
       set("aggregateRating", {
@@ -130,6 +138,9 @@ export function extract(html: string, url: string): ExtractResult {
   set("name", clean(meta("og:title")), "opengraph");
   set("description", clean(meta("og:description") ?? meta("description")), "meta");
   set("image", meta("og:image"), "opengraph");
+  set("author", clean(meta("author") ?? meta("article:author")), "meta");
+  set("datePublished", meta("article:published_time"), "meta");
+  set("inLanguage", $("html").attr("lang") || undefined, "html");
   const ogType = meta("og:type");
   if (!sources["@type"] && ogType) {
     if (/product/i.test(ogType)) data["@type"] = "Product";
@@ -155,6 +166,10 @@ export function extract(html: string, url: string): ExtractResult {
   if (mdPrice) {
     set("offers", { price: mdPrice, priceCurrency: ip("priceCurrency"), availability: normAvailability(ip("availability")) }, "microdata");
   }
+
+  // Put a space after block elements so text from separate boxes doesn't run together
+  // ("Aura Headphones" + "$348.00", not "Aura Headphones$348.00").
+  $("p,div,li,h1,h2,h3,h4,h5,h6,td,th,dt,dd,section,article,header,footer,br").after(" ");
 
   // Visible text: what a person actually sees (scripts, styles and hidden nodes removed).
   const body = $("body").clone();
@@ -204,7 +219,17 @@ export function extract(html: string, url: string): ExtractResult {
     .slice(0, 2)
     .join(" ");
   set("summary", clean(para, 500), "html");
+  // Short list items in the main content, like product features.
+  const highlights = mainEl.find("li")
+    .filter((_, el) => $(el).closest("nav,header,footer").length === 0)
+    .map((_, el) => clean($(el).text(), 120))
+    .get()
+    .filter((t: string) => t && t.length > 3 && t.length <= 120);
+  if (highlights.length) set("highlights", [...new Set(highlights)].slice(0, 8), "html");
   set("description", data.summary, "html");
+
+  // Image links must be full addresses so agents can fetch them.
+  if (data.image) { try { data.image = new URL(data.image, url).toString(); } catch { delete data.image; } }
 
   // Drop empty nested values so the output stays small.
   if (data.offers) {
@@ -217,12 +242,12 @@ export function extract(html: string, url: string): ExtractResult {
   }
 
   // Stable, readable key order.
-  const order = ["@context", "@type", "name", "brand", "description", "url", "image", "offers", "aggregateRating", "headings", "summary"];
+  const order = ["@context", "@type", "name", "brand", "description", "url", "image", "offers", "aggregateRating", "author", "datePublished", "inLanguage", "highlights", "headings", "summary"];
   const ordered = Object.fromEntries(
     order.filter((k) => (data as Record<string, unknown>)[k] !== undefined).map((k) => [k, (data as Record<string, unknown>)[k]]),
   ) as Extracted;
 
-  return { data: ordered, sources, visibleText };
+  return { data: ordered, sources, visibleText, title: $("title").first().text() };
 }
 
 // Rough token estimate (about 4 characters per token for English and markup).
