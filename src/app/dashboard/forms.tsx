@@ -17,7 +17,7 @@ export function AddSiteForm() {
         <input name="domain" className="input" placeholder="yourstore.com" aria-label="Your domain" autoCapitalize="off" spellCheck={false} />
         <button className="btn" disabled={pending}>{pending ? "Adding…" : "Add site"}</button>
       </div>
-      <Message state={state} />
+      {!pending && <Message state={state} />}
     </form>
   );
 }
@@ -34,7 +34,7 @@ export function ReadPageForm({ site, domain }: { site: string; domain: string })
         </div>
         <button className="btn-ghost h-10" disabled={pending}>{pending ? "Reading…" : "Read page"}</button>
       </div>
-      <Message state={state} />
+      {!pending && <Message state={state} />}
     </form>
   );
 }
@@ -45,7 +45,7 @@ export function VerifyForm({ site }: { site: string }) {
     <form action={action}>
       <input type="hidden" name="site" value={site} />
       <button className="btn-ghost" disabled={pending}>{pending ? "Checking…" : "Check install"}</button>
-      <Message state={state} />
+      {!pending && <Message state={state} />}
     </form>
   );
 }

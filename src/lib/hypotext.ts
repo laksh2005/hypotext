@@ -19,14 +19,15 @@ type Options = {
 export const BYPASS_HEADER = "x-hypotext-bypass";
 
 // Files and framework routes that are never pages.
-const NOT_A_PAGE = /^\/(_next|api)\/|\.(png|jpe?g|gif|svg|webp|ico|css|js|map|woff2?|xml|json)$/i;
+const NOT_A_PAGE = /^\/(_next|api)\/|\.(png|jpe?g|gif|svg|webp|ico|css|js|map|woff2?|xml|json|txt|pdf|mp4|zip)$/i;
 
 export function hypotext({ siteKey, endpoint, basePath = "" }: Options) {
   return async function middleware(req: NextRequest) {
     const { pathname, searchParams, origin } = req.nextUrl;
     const key = encodeURIComponent(siteKey);
 
-    if (req.headers.get(BYPASS_HEADER)) return NextResponse.next();
+    // Only page loads get JSON; form posts and other requests pass straight through.
+    if (req.headers.get(BYPASS_HEADER) || (req.method !== "GET" && req.method !== "HEAD")) return NextResponse.next();
 
     // A plain-text map of the site for AI agents.
     if (pathname === `${basePath}/llms.txt`) {
@@ -55,7 +56,10 @@ async function forward(url: string): Promise<Response> {
     const r = await fetch(url, { headers: { [BYPASS_HEADER]: "1" }, cache: "no-store" });
     return new Response(r.body, {
       status: r.status,
-      headers: { "content-type": r.headers.get("content-type") ?? "application/json", vary: "user-agent", "x-hypotext": "served" },
+      headers: {
+        "content-type": r.headers.get("content-type") ?? "application/json", vary: "user-agent", "x-hypotext": "served",
+        ...(r.headers.get("cache-control") ? { "cache-control": r.headers.get("cache-control")! } : {}),
+      },
     });
   } catch {
     return new Response(null, { status: 502 });

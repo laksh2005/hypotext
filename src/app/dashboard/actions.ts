@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSite, savePage } from "@/lib/db";
 import { analyze } from "@/lib/render";
-import { normalizeDomain } from "@/lib/sites";
+import { normalizeDomain, urlBelongsToSite } from "@/lib/sites";
 import { forgetSiteKey, mySites, rememberSiteKey } from "@/lib/session";
 
 export type FormState = { error?: string; ok?: string };
@@ -35,6 +35,13 @@ export async function readPage(_: FormState, form: FormData): Promise<FormState>
   if (!site) return { error: "You don't have access to this site." };
 
   let path = String(form.get("path") ?? "").trim() || "/";
+  // Accept a full link as well as a path, as long as it's on this site.
+  if (/^https?:\/\//i.test(path)) {
+    let u: URL;
+    try { u = new URL(path); } catch { return { error: "That doesn't look like a web address." }; }
+    if (!urlBelongsToSite(site, u.toString())) return { error: `That link isn't on ${site.domain}.` };
+    path = u.pathname + u.search;
+  }
   if (!path.startsWith("/")) path = "/" + path;
 
   try {

@@ -23,9 +23,11 @@ export function normalizeDomain(input: string): string | null {
 }
 
 export function urlBelongsToSite(site: Site, url: string): boolean {
-  if (site.domain === "*") return true;
   try {
-    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const u = new URL(url);
+    if (!/^https?:$/.test(u.protocol)) return false;
+    if (site.domain === "*") return true;
+    const host = u.hostname.replace(/^www\./, "").toLowerCase();
     return host === site.domain || host.endsWith("." + site.domain);
   } catch {
     return false;
